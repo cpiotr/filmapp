@@ -1,0 +1,62 @@
+<html xmlns="http://www.w3c.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:f="http://java.sun.com/jsf/core">
+<h:head>
+	<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+</h:head>
+<h:body>
+	<h:form id="mainForm">
+		<h:panelGrid columns="2">
+			<h:outputLabel for="searchFormTitle" value="#{msg['film.title']}" />
+			<p:inputText id="searchFormTitle" value="#{filmListBean.title}" />
+
+			<h:outputLabel for="searchFormDate" value="Filmy dodane później niż" />
+			<p:calendar id="searchFormDate" value="#{filmListBean.insertionDate}" />
+
+			<p:commandButton value="#{msg['action.search']}" action="#{filmListBean.search}"
+				ajax="false" />
+		</h:panelGrid>
+
+		<p:dataTable id="filmTable" value="#{filmListBean.films}" var="film"
+			rendered="#{not empty filmListBean.films}" paginator="true" rows="100"
+			paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			rowsPerPageTemplate="10,100,200">
+			<p:column headerText="#{msg['film.title']}">
+				<p:commandLink action="#{filmBean.view}" oncomplete="filmDialog.show()" id="titleLink" update=":mainForm:display">
+					<f:setPropertyActionListener value="#{film}" target="#{filmBean.film}" />  
+					<h:outputText value="#{film.title}" />
+				</p:commandLink>
+			</p:column>
+			<p:column headerText="#{msg['film.label']}">#{film.label}</p:column>
+			<p:column headerText="#{msg['film.insertionDate']}">#{film.insertionDate}</p:column>
+			
+		</p:dataTable>
+
+
+		<p:dialog header="#{msg['film.view.dialogTitle']}" widgetVar="filmDialog"
+			resizable="false" id="filmView" showEffect="fade" hideEffect="explode"
+			modal="true">
+
+			<h:panelGrid id="display" columns="2" cellpadding="4"
+				style="margin:0 auto;">
+
+				<f:facet name="header">  
+                Detale 
+            	</f:facet>
+
+				<h:outputText value="#{msg['film.title']}" />
+				<h:outputLink value="#{filmBean.description.url}">
+					<h:outputText value="#{filmBean.description.title}" style="font-weight:bold" />
+				</h:outputLink>
+
+				<h:outputText value="#{msg['film.score']}" />
+				<h:outputText value="#{filmBean.description.score}" style="font-weight:bold">
+					<f:convertNumber type="percent" maxFractionDigits="2" />
+				</h:outputText>
+			</h:panelGrid>
+		</p:dialog>
+
+	</h:form>
+</h:body>
+</html>

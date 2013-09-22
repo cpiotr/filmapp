@@ -1,0 +1,65 @@
+<html xmlns="http://www.w3c.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:p="http://primefaces.org/ui"
+    xmlns:f="http://java.sun.com/jsf/core">
+<h:head>
+	<meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+</h:head>
+<h:body>
+	<h:form id="mainForm">
+		<h:panelGrid columns="2">
+			<h:outputLabel for="searchFormTitle" value="Tytul" />
+			<p:inputText id="searchFormTitle" value="#{filmListBean.title}"/>
+			
+			<h:outputLabel for="searchFormDate" value="Filmy dodane później niż" />
+			<p:calendar id="searchFormDate" value="#{filmListBean.insertionDate}"/>
+			
+			<p:commandButton value="#{msg['action.search']}" action="#{filmListBean.search}" ajax="false" />
+		</h:panelGrid>
+		
+	<p:dataTable id="filmTable" value="#{filmListBean.films}" var="film" rendered="#{not empty filmListBean.films}"
+			paginator="true" rows="100"  
+			paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"  
+			rowsPerPageTemplate="10,100,200">
+		<p:column headerText="Tytul">#{film.title}</p:column>
+		<p:column headerText="Opis">#{film.label}</p:column>
+		<p:column headerText="Data dodania">#{film.insertionDate}</p:column>
+		
+		<p:column style="width:40px"> 
+			<h:panelGrid columns="2" border="0" style="margin:0 auto;">  
+                <p:commandButton id="selectButton" update=":mainForm:display" oncomplete="filmDialog.show()" icon="ui-icon-edit" title="Edycja">  
+                	<f:setPropertyActionListener value="#{film}" target="#{filmBean.film}" />  
+            	</p:commandButton> 
+            	
+            	<p:commandButton id="removeButton" icon="ui-icon-delete" title="Usun" action="#{filmBean.remove}">  
+                	<f:setPropertyActionListener value="#{film}" target="#{filmBean.film}" />  
+            	</p:commandButton>
+            </h:panelGrid> 
+        </p:column> 
+	</p:dataTable>
+  
+    <p:dialog header="Edycja filmu" widgetVar="filmDialog" resizable="false" id="carDlg"  
+                showEffect="fade" hideEffect="explode" modal="true">  
+  
+        <h:panelGrid id="display" columns="2" cellpadding="4" style="margin:0 auto;">  
+  
+            <f:facet name="header">  
+                Edytuj  
+            </f:facet>  
+  
+            <h:outputText value="Tytul" />  
+            <h:inputText value="#{filmBean.film.title}" style="font-weight:bold"/>  
+  
+            <h:outputText value="Opis" />  
+            <h:inputText value="#{filmBean.film.label}" style="font-weight:bold"/>  
+  
+  
+        </h:panelGrid>  
+        <p:commandButton value="Zapisz" update=":mainForm:filmTable" oncomplete="filmDialog.hide()" action="#{filmBean.save}">
+        </p:commandButton>
+  
+    </p:dialog>
+    
+	</h:form>  
+</h:body>
+</html>

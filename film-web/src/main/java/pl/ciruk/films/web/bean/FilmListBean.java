@@ -53,11 +53,11 @@ public class FilmListBean implements Serializable {
 	public void handleFileUpload(FileUploadEvent event) {  
         LOG.info("handleFileUpload");
 		
-		File f = null;
+		File file = null;
 		try {
-			f = createFile(event.getFile());
+			file = createFile(event.getFile());
 			
-			service.updateWithListFile(f);
+			service.updateWithListFile(file);
 			
 			FacesMessage msg = new FacesMessage("Succesful", event.getFile().getFileName() + " is uploaded.");  
 	        FacesContext.getCurrentInstance().addMessage(null, msg);

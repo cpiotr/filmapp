@@ -5,7 +5,10 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.ejb.LocalBean;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -100,6 +103,7 @@ public class FilmServiceBean {
 		boolean result = false;
 		
 		Query query = em.createNamedQuery(Film.Query.BY_TITLE_AND_LABEL).setParameter("title", film.getTitle()).setParameter("label", film.getLabel());
+		@SuppressWarnings("unchecked")
 		List<Film> films = query.getResultList();
 		result = !films.isEmpty();
 		
@@ -109,6 +113,9 @@ public class FilmServiceBean {
 	public boolean remove(Film film) {
 		Preconditions.checkArgument(film != null, PreconditionsHelper.CANT_BE_NULL, "Film");
 		
+		LOG.info("remove");
+		LOG.debug("remove - Film: " + film);
+		
 		boolean removed = false;
 		if (film.getId() != null) {
 			em.remove(em.find(Film.class, film.getId()));
@@ -116,6 +123,37 @@ public class FilmServiceBean {
 		}
 		
 		return removed;
+	}
+	
+	public void removeDuplicates() {
+		LOG.info("removeDuplicates");
+		
+		List<?> ids = em.createQuery("select min(f.id) from Film f group by f.title, f.label").getResultList();
+		
+		@SuppressWarnings("unchecked")
+		List<Film> unique = em.createQuery("select f from Film f where f.id IN :ids").setParameter("ids", ids).getResultList();
+		LOG.info("removeDuplicates - Unique films number: " + unique.size());
+		
+		int removedNumber = 0;
+		
+		for (Film film : unique) {
+			Query query = em.createQuery("select f from Film f where f.title = :title and f.label = :label and f.id != :id")
+					.setParameter("title", film.getTitle())
+					.setParameter("label", film.getLabel())
+					.setParameter("id", film.getId());
+			
+			@SuppressWarnings("unchecked")
+			List<Film> duplicates = query.getResultList();
+			
+			for (Film duplicate : duplicates) {
+				boolean removed = remove(duplicate);
+				if (removed) {
+					removedNumber++;
+				}
+			}
+		}
+		
+		LOG.info("removeDuplicates - Number of removed films: " + removedNumber);
 	}
 
 	public void updateWithListFile(File filmListFile) {

@@ -21,7 +21,8 @@ import pl.ciruk.films.web.datatype.FilmType;
 @Table(name="fb_film")
 @NamedQueries({
 	@NamedQuery(name=Film.Query.BY_TITLE_AND_LABEL, query="select f from Film f where f.title = :title and f.label = :label"),
-	@NamedQuery(name=Film.Query.GET_ALL, query="select f from Film f")
+	@NamedQuery(name=Film.Query.GET_ALL, query="select f from Film f"),
+	@NamedQuery(name=Film.Query.GET_UNIQUE, query="select min(f.id) as id, f.title, f.label, f.insertionDate, f.type from Film f group by f.title, f.label")
 })
 public class Film extends BaseEntity {
 
@@ -34,6 +35,9 @@ public class Film extends BaseEntity {
 		
 		/** Pobiera wszystkie filmy. */
 		public static final String GET_ALL = "Film.GetAll";
+		
+		/** Pobiera liste niepowtarzajacych sie rekordow. */
+		public static final String GET_UNIQUE = "Film.GetUnique";
 	}
 	
 	@Column(name="film_title")

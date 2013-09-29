@@ -59,6 +59,8 @@ public class FilmListBean implements Serializable {
 			
 			service.updateWithListFile(file);
 			
+			file.delete();
+			
 			FacesMessage msg = new FacesMessage("Succesful", event.getFile().getFileName() + " is uploaded.");  
 	        FacesContext.getCurrentInstance().addMessage(null, msg);
 		} catch (Exception e) {
